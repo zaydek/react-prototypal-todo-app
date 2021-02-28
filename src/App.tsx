@@ -1,4 +1,4 @@
-import * as creators from "./creators"
+import * as closure from "./closure"
 import * as React from "react"
 
 function useRender() {
@@ -7,8 +7,7 @@ function useRender() {
 }
 
 export default function App() {
-	// @ts-ignore
-	const app = React.useMemo(() => new creators.TodoApp() as creators.TodoAppType, [])
+	const app = React.useMemo(() => closure.newTodoApp(), [])
 	const render = useRender()
 
 	return (
@@ -19,16 +18,24 @@ export default function App() {
 					render(app.add())
 				}}
 			>
-				<input type="checkbox" checked={app.todo.done} onChange={e => render(app.todo.setDone(e.target.checked))} />
-				<input type="text" value={app.todo.text} onChange={e => render(app.todo.setText(e.target.value))} />
+				<input
+					type="checkbox"
+					checked={app.state.todo.state.done}
+					onChange={e => render(app.state.todo.setDone(e.target.checked))}
+				/>
+				<input
+					type="text"
+					value={app.state.todo.state.text}
+					onChange={e => render(app.state.todo.setText(e.target.value))}
+				/>
 				<button type="submit">+</button>
 			</form>
 
-			{app.todos.map(todo => (
-				<div key={todo.id}>
-					<input type="checkbox" checked={todo.done} onChange={e => render(todo.setDone(e.target.checked))} />
-					<input type="text" value={todo.text} onChange={e => render(todo.setText(e.target.value))} />
-					<button onClick={e => render(app.remove(todo.id))}>-</button>
+			{app.state.todos.map(todo => (
+				<div key={todo.state.id}>
+					<input type="checkbox" checked={todo.state.done} onChange={e => render(todo.setDone(e.target.checked))} />
+					<input type="text" value={todo.state.text} onChange={e => render(todo.setText(e.target.value))} />
+					<button onClick={e => render(app.remove(todo.state.id))}>-</button>
 				</div>
 			))}
 
