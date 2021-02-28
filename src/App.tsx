@@ -1,26 +1,38 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import * as creators from "./creators"
+import * as React from "react"
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+function useRender() {
+	const [, setState] = React.useState(0)
+	return (_: void) => setState(s => s + 1)
 }
 
-export default App;
+export default function App() {
+	// @ts-ignore
+	const app = React.useMemo(() => new creators.TodoApp() as creators.TodoAppType, [])
+	const render = useRender()
+
+	return (
+		<div>
+			<form
+				onSubmit={e => {
+					e.preventDefault()
+					render(app.add())
+				}}
+			>
+				<input type="checkbox" checked={app.todo.done} onChange={e => render(app.todo.setDone(e.target.checked))} />
+				<input type="text" value={app.todo.text} onChange={e => render(app.todo.setText(e.target.value))} />
+				<button type="submit">+</button>
+			</form>
+
+			{app.todos.map(todo => (
+				<div key={todo.id}>
+					<input type="checkbox" checked={todo.done} onChange={e => render(todo.setDone(e.target.checked))} />
+					<input type="text" value={todo.text} onChange={e => render(todo.setText(e.target.value))} />
+					<button onClick={e => render(app.remove(todo.id))}>-</button>
+				</div>
+			))}
+
+			<pre>{JSON.stringify(app, null, 2)}</pre>
+		</div>
+	)
+}
